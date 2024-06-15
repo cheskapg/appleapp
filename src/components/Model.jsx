@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
 import { models, sizes } from "../constants";
+import { animateWithGsapTimeline } from "../utils/animation";
 // import { animateWithGsapTimeline } from "../utils/animations";
 const Model = () => {
   const [size, setSize] = useState("small");
@@ -28,8 +29,28 @@ const Model = () => {
   const [smallRotation, setSmallRotation] = useState(0);
   const [largeRotation, setLargeRotation] = useState(0);
   
+  const tl = gsap.timeline();
+  useEffect(() => {
+    if(size === 'large') {
+      animateWithGsapTimeline(tl, small, smallRotation, '#view1', '#view2', {
+        transform: 'translateX(-100%)',
+        duration: 2
+      })
+    }
+
+    if(size ==='small') {
+      animateWithGsapTimeline(tl, large, largeRotation, '#view2', '#view1', {
+        transform: 'translateX(0)',
+        duration: 2
+      })
+    }
+  }, [size])
+
   useGSAP(() => {
-    gsap.to('#heading', { y: 0, opacity: 1 })
+    gsap.to('#heading', { y: 0, opacity: 1, 
+      delay: 0.5,
+
+    })
   }, []);
   return (
     <section className="common-padding">
@@ -40,23 +61,24 @@ const Model = () => {
 
         <div className="flex flex-col item-center mt-5">
           <div className="w-full h-[75vh] md:h-[90vh] overflow-hidden relative">
-            <ModelView
+          <ModelView 
               index={1}
               groupRef={small}
               gsapType="view1"
               controlRef={cameraControlSmall}
               setRotationState={setSmallRotation}
-              size={size}
               item={model}
-            />
-            <ModelView
-              index={1}
+              size={size}
+            />  
+
+            <ModelView 
+              index={2}
               groupRef={large}
               gsapType="view2"
               controlRef={cameraControlLarge}
               setRotationState={setLargeRotation}
-              size={size}
               item={model}
+              size={size}
             />
             <Canvas
               className="w-full h-full"
@@ -73,6 +95,7 @@ const Model = () => {
               <View.Port />
             </Canvas>
           </div>
+          
           <div className="mx-auto w-full">
             <p className="text-sm font-light text-center mb-5">{model.title}</p>
             <div className="flex-center">
